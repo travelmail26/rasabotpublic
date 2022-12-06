@@ -1,0 +1,341 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - mood_great
+  - mood_unhappy
+  - bot_challenge
+  - inform
+  - act_asana_path
+  - restart
+  - act_get_help_asana_intent
+  - longdescription
+  - activate_test_form
+  - mindful_before_work_introspection
+  - email_form_trigger_intent
+
+actions:
+  - validate_help_form
+  - validate_email_form
+  - validate_asana_form
+
+responses:
+  utter_greet:
+  - text: "Hey! How are you?"
+
+  utter_cheer_up:
+  - text: "Here is something to cheer you up:"
+    image: "https://i.imgur.com/nGF1K8f.jpg"
+
+  utter_did_that_help:
+  - text: "Did that help you?"
+
+  utter_happy:
+  - text: "Great, carry on!"
+
+  utter_goodbye:
+  - text: "Bye"
+
+  utter_iamabot:
+  - text: "I am a bot, powered by Rasa."
+
+  utter_restart:
+  - text: "Restart successful!"
+
+#ASANA FORM
+  utter_ask_asana_task_name_before_slot:
+  - text: How would you briefly describe the task or what you'd like to log? I will search for the associated asana task.
+  
+  utter_ask_asana_number_select:
+  - text: What is the name of the task you'd like to check?
+
+  utter_ask_asana_select_name_from_enumerated_list:
+  - text: Please select from this list \n {asana_form_enumerated_list_from_asana_task_search}?
+
+
+  utter_ask_get_help_asana_task_name_before_slot:
+  - text: How would you describe the task you need help with?
+
+  utter_ask_asana_what_log_about_selected_task:
+  - text: would you like to log about this task?
+
+  utter_asana_form_end:
+  - text: you logged a note about {asana_form_enumerated_list_from_asana_task_search:}
+
+#HELP FORM
+  utter_ask_help_form_asana_who_could_help:
+  - text: Do you know the name of the person who could help you? \n Yes\No
+  utter_ask_help_form_get_name_if_known:
+  - text: What is the name?
+  utter_ask_help_form_select_name_from_enumerated_list:
+  - text: Please select from this list \n {help_form_enumerated_list_from_asana_task_search}?
+  
+  utter_ask_help_form_get_keywords_search_asana_CRM_name_descriptions:
+  - text: What are some keywords about the person who could help you? I will search the CRM.
+  utter_help_form_end:
+  - text: you logged a note about {help_form_selected_task_from_enumerated_list}
+
+
+#EMAIL
+
+  utter_ask_email_form_confirm_want_email:
+  - text: Would you like to email this person?
+  utter_ask_email_form_what_subject:
+  - text: What is the subject of the email?
+  utter_ask_email_form_message_body:
+  - text: What is the email body?
+
+#WORKBLOCKMINDFULNESS
+  utter_mindful_before_work_introspection:
+  - text: Sounds like you're about to do some work. Would you like to try a mindfulness practice?
+  utter_mindful_before_work_introspection_close_eyes:
+  - text: Ok. Close your eyes and feel within your body. Where is the tension most conspicuous when you think about your upcoming work?
+  utter_mindful_before_work_introspection_intensify:
+  - text: Ok. Try to intensify this feeling. And when you can't intensify it anymore, what would bring resolution to this feeling?
+
+
+#EMAIL
+
+  utter_ask_followup_form_want_to_confirm:
+  - text: Would you like to follow up by email?
+  utter_ask_followup_form_who:
+  - text: Who would you like to follow up with?
+  utter_ask_followup_form_wherespoke:
+  - text: Where did you speak with this peron? You can say something like "on a call" or "in person"
+  utter_ask_followup_form_topic_summary:
+  - text: How would you summarize what you spoke about in a sentence or two?
+  utter_ask_followup_form_why_matters:
+  - text: In a sentence, why does this matter to the recipient?
+  utter_ask_followup_form_planned_action:
+  - text: What's a concrete next step you two can discuss or plan?
+  utter_ask_followup_form_requests_or_questions:
+  - text: Are there any unanswered questions or requests for this person?
+  utter_ask_followup_form_which_asana_task:
+  - text: Is this related to a particular asana task?
+
+
+
+#TEST FORM for some reason must remain. get error if delete
+  utter_ask_test_form_first:
+  - text: first form question
+  utter_ask_test_form_second:
+  - text: second form question
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true
+
+  
+slots:
+  #ASANA SLOTS
+  asana_task_name_before_slot:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_text
+      conditions:
+      - active_loop: asana_form
+        requested_slot: asana_task_name_before_slot
+  asana_number_select:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_text
+      conditions:
+      - active_loop: asana_form
+        requested_slot: asana_number_select
+  asana_form_enumerated_list_from_asana_task_search:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
+  asana_select_name_from_enumerated_list:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_text
+      conditions:
+      - active_loop: asana_form
+        requested_slot: asana_select_name_from_enumerated_list
+  asana_what_log_about_selected_task:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_text
+      conditions:
+      - active_loop: asana_form
+        requested_slot: asana_what_log_about_selected_task
+
+  ###EMAIL FORM
+  email_form_confirm_want_email:
+    type: bool
+    influence_conversation: true
+    mappings:
+    - type: from_intent
+      value: True
+      intent: affirm
+      conditions:
+      - active_loop: email_form
+        requested_slot: email_form_confirm_want_email  
+    - type: from_intent
+      value: False
+      intent: deny
+      conditions:
+      - active_loop: email_form
+        requested_slot: email_form_confirm_want_email
+
+  email_form_what_subject:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_text
+      conditions:
+      - active_loop: email_form
+        requested_slot: email_form_what_subject
+
+  email_form_message_body:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_text
+      conditions:
+      - active_loop: email_form
+        requested_slot: email_form_message_body
+
+
+##HELPFORMSLOTS
+  help_form_asana_who_could_help:
+    type: bool
+    influence_conversation: false
+    mappings:
+    - type: from_intent
+      value: True
+      intent: affirm
+      conditions:
+      - active_loop: help_form
+        requested_slot: help_form_asana_who_could_help
+    - type: from_intent
+      value: False
+      intent: deny
+      conditions:
+      - active_loop: help_form
+        requested_slot: help_form_asana_who_could_help
+  help_form_get_name_if_known:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_text
+      conditions:
+      - active_loop: help_form
+        requested_slot: help_form_get_name_if_known
+  
+  help_form_enumerated_list_from_asana_task_search:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
+
+  help_form_select_name_from_enumerated_list:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_text
+      conditions:
+      - active_loop: help_form
+        requested_slot: help_form_select_name_from_enumerated_list
+
+  help_form_selected_task_from_enumerated_list:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
+
+  help_form_get_keywords_search_asana_CRM_name_descriptions:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_text
+      conditions:
+      - active_loop: help_form
+        requested_slot: help_form_get_keywords_search_asana_CRM_name_descriptions
+
+  help_form_list_of_names_from_keyword_retrieved_from_asana:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
+  
+
+  help_form_list_names_from_server_action:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_text
+      conditions:
+      - active_loop: help_form
+        requested_slot: help_form_list_names_from_server_action
+  test_form_first:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_text
+      conditions:
+      - active_loop: test_form
+        requested_slot: test_form_first
+  test_form_second:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_text
+      conditions:
+      - active_loop: test_form
+        requested_slot: test_form_second
+
+forms:
+  asana_form:
+    ignored_intents: []
+    required_slots:
+    - asana_number_select
+    - asana_select_name_from_enumerated_list
+    - asana_what_log_about_selected_task
+  head_heart_form:
+    ignored_intents: []
+    required_slots:
+    - head_heart_express
+    - head_heart_rating
+    - head_heart_explain
+  help_form:
+    ignored_intents: []
+    required_slots:
+    - help_form_asana_who_could_help
+    - help_form_get_name_if_known
+    - help_form_select_name_from_enumerated_list
+    - help_form_selected_task_from_enumerated_list
+    - help_form_get_keywords_search_asana_CRM_name_descriptions
+    - help_form_action_asana_crm_description_retrieved
+  test_form:
+    ignored_intents: []
+    required_slots:
+    - test_form_first
+    - test_form_second
+  email_form: #form is connected to help form. must be filled out first
+    ignored_intents: []
+    required_slots:
+    - email_form_confirm_want_email
+    - email_form_what_subject
+    - email_form_message_body
+  followup_form:
+    ignored_intents: []
+    required_slots:
+    - followup_form_want_to_confirm
+    - followup_form_who
+    - followup_form_wherespoke
+    - followup_form_topic_summary
+    - followup_form_why_matters
+    - followup_form_planned_action
+    - followup_form_requests_or_questions
+    - followup_form_which_asana_task
+    - followup_form_assign_task_follow_up
